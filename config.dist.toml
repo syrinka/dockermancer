@@ -1,0 +1,11 @@
+# This is distributable config file
+# Make a local copy and name it "config.toml" to modify the value
+
+[chat]
+provider = "OpenAI"
+
+[chat.params]
+model = "gpt-5"
+
+[[dockers]]
+url = "unix:///var/run/docker.sock"

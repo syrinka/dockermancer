@@ -9,5 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-# Sensitive files
+# Local files
 .env.prod
+config.toml
