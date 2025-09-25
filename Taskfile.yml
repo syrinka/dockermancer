@@ -1,0 +1,15 @@
+version: 3
+
+dotenv:
+  - .env.prod
+  - .env
+
+tasks:
+  run:
+    aliases: [default]
+    cmd: python -u "./entry.py"
+
+  debug:
+    cmd: python -u "./entry.py"
+    env:
+      LOGURU_LEVEL: TRACE

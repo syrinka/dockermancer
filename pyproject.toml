@@ -1,0 +1,39 @@
+[project]
+name = "agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "autogen-core>=0.7.4",
+    "autogen-ext[openai]>=0.7.4",
+    "docker>=7.1.0",
+    "loguru>=0.7.3",
+    "pydantic>=2.11.9",
+]
+
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle-error
+    "W",   # pycodestyle-warning
+    "B",   # flake8-bugbear
+    "FBT", # flake8-boolean-trap
+    "COM", # flake8-commas
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "ARG", # flake8-unused-arguments
+    "FIX", # flake8-fixme
+    "PL",  # pylint
+    "I",   # isort
+]
+ignore = [
+    "F403", # wildcard import
+    "E501", # line too long
+    "B904", # raise from
+]
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

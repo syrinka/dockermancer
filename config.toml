@@ -1,0 +1,9 @@
+[chat]
+provider = "OpenAI"
+
+[chat.params]
+model = "gemini-2.0-flash"
+base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+[[dockers]]
+url = "unix:///var/run/docker.sock"
