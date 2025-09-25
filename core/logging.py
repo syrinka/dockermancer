@@ -10,7 +10,7 @@ class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         logger.opt(exception=record.exc_info).log(
             autogen_level.name,
-            record.getMessage().encode().decode("unicode_escape"),
+            record.getMessage(),
         )
 
 

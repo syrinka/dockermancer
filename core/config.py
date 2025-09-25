@@ -4,7 +4,6 @@ import argparse
 import sys
 import tomllib
 from pathlib import Path
-from pprint import pformat
 from typing import Any, Literal
 
 from loguru import logger
@@ -52,8 +51,10 @@ logger.info(f"Using config path: {config_path}")
 
 config_raw = tomllib.load(open(config_path, mode="rb"))
 config = DockermancerConfig(**config_raw)
+if config.mode == "prod" and "api_key" in config.chat.params:
+    logger.warning("API key exposed")
 
+logger.debug(f"Config loaded: \n{config.model_dump_json()}")
 
-logger.debug(f"Config loaded: \n{pformat(config.model_dump())}")
 
 __all__ = ["config", "args"]
