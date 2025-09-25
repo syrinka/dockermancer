@@ -20,6 +20,7 @@ class DockerInstConfig(BaseModel):
 
 class ChatClientConfig(BaseModel):
     provider: Literal["OpenAI", "AzureOpenAI", "AzureAI", "Ollama"]
+    logging: bool = False
     params: dict[str, Any] = Field(default_factory=dict)
 
 

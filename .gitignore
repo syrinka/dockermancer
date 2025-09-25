@@ -12,3 +12,4 @@ wheels/
 # Local files
 .env.prod
 config.toml
+*.log

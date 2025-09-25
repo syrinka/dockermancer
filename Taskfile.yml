@@ -9,7 +9,12 @@ tasks:
     aliases: [default]
     cmd: python -u "./entry.py"
 
-  debug:
+  trace:
     cmd: python -u "./entry.py"
     env:
       LOGURU_LEVEL: TRACE
+
+  debug:
+    cmd: python -u "./entry.py"
+    env:
+      LOGURU_LEVEL: DEBUG

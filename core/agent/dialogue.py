@@ -2,7 +2,7 @@ from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.tools import FunctionTool
 
 from core.share import wraptool
-from core.share.msg import ChatCompletionRequest
+from core.share.msg import ChatCompletionRequest, DockerRequest
 
 
 class DialogueAgent(RoutedAgent):
@@ -12,11 +12,17 @@ class DialogueAgent(RoutedAgent):
         super().__init__(self.__class__.__name__)
         self.tools = [
             wraptool(self.calc_xsum),
+            wraptool(self.ask_docker),
         ]
 
     async def calc_xsum(self, a: int, b: int) -> int:
         "Calculate the X-Sum of two integer."
         return a + 2 * b
+
+    async def ask_docker(self, question: str) -> str:
+        "Handoff docker relevant question to dedicated agent."
+        req = DockerRequest(question)
+        return await self.send_message(req, AgentId("docker", "default"))
 
     @message_handler
     async def handle_dialogue(self, message: str, _: MessageContext) -> str:

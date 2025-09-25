@@ -6,7 +6,7 @@ from autogen_core.tools import FunctionTool
 
 @dataclass
 class DockerRequest(object):
-    name: str
+    prompt: str
 
 
 @dataclass

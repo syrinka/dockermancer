@@ -3,7 +3,10 @@ import logging
 from autogen_core import EVENT_LOGGER_NAME
 from loguru import logger
 
-autogen_level = logger.level("AUTOGEN", no=8, color="<magenta>")
+from core.config import config
+
+chat_level = logger.level("CHAT", no=8, color="<cyan>")
+autogen_level = logger.level("AUTOGEN", no=6, color="<magenta>")
 
 
 class InterceptHandler(logging.Handler):
@@ -18,3 +21,11 @@ autogen_logger = logging.getLogger(EVENT_LOGGER_NAME)
 autogen_logger.setLevel(logging.DEBUG)
 autogen_logger.addHandler(InterceptHandler())
 logger.debug("Intercept autogen logger")
+
+if config.chat.logging:
+    logger.add(
+        "chat.log",
+        level="CHAT",
+        format="{time} {message}",
+        filter=lambda r: r["level"].name == "CHAT",
+    )

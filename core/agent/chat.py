@@ -2,6 +2,7 @@ import asyncio
 import json
 
 from autogen_core import (
+    AgentInstantiationContext,
     CancellationToken,
     FunctionCall,
     MessageContext,
@@ -14,23 +15,27 @@ from autogen_core.models import (
     ChatCompletionClient,
     FunctionExecutionResult,
     FunctionExecutionResultMessage,
+    LLMMessage,
     SystemMessage,
     UserMessage,
 )
 from autogen_core.tools import FunctionTool
 from autogen_ext.models.openai import OpenAIChatCompletionClient
+from loguru import logger
 
 from core.config import config
 from core.share.msg import ChatCompletionRequest
 
 
 class ChatCompletionAgent(RoutedAgent):
+    agent_key: str
     client: ChatCompletionClient
     context: BufferedChatCompletionContext
     system_prompt: list[SystemMessage]
 
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
+        self.agent_key = AgentInstantiationContext.current_agent_id().key
         chat_config = config.chat
         match chat_config.provider:
             case "OpenAI":
@@ -47,7 +52,7 @@ class ChatCompletionAgent(RoutedAgent):
         ctx: MessageContext,
     ) -> str:
         user_msg = UserMessage(content=message.prompt, source="user")
-        await self.context.add_message(user_msg)
+        await self.record(user_msg)
 
         while True:
             result = await self.client.create(
@@ -56,7 +61,7 @@ class ChatCompletionAgent(RoutedAgent):
                 cancellation_token=ctx.cancellation_token,
             )
 
-            await self.context.add_message(
+            await self.record(
                 AssistantMessage(content=result.content, source="assistant"),
             )
 
@@ -75,9 +80,16 @@ class ChatCompletionAgent(RoutedAgent):
                 ],
             )
 
-            await self.context.add_message(
+            await self.record(
                 FunctionExecutionResultMessage(content=executes),
             )
+
+    async def record(self, msg: LLMMessage):
+        await self.context.add_message(msg)
+        logger.log(
+            "CHAT",
+            f"[{self.agent_key}/{msg.type}] | {str(msg.content).replace('\n', '\\n')}",
+        )
 
     async def execute_tool_call(
         self,
