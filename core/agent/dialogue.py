@@ -1,6 +1,7 @@
 from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.tools import FunctionTool
 
+from core.share import wraptool
 from core.share.msg import ChatCompletionRequest
 
 
@@ -10,7 +11,7 @@ class DialogueAgent(RoutedAgent):
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
         self.tools = [
-            FunctionTool(self.calc_xsum, "Calculate X-Sum", name="calc_xsum"),
+            wraptool(self.calc_xsum),
         ]
 
     async def calc_xsum(self, a: int, b: int) -> int:
