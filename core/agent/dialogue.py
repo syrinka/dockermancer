@@ -2,7 +2,7 @@ from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.tools import FunctionTool
 
 from core.share import wraptool
-from core.share.msg import ChatCompletionRequest, DockerRequest
+from core.share.msg import ChatCompletionRequest
 
 
 class DialogueAgent(RoutedAgent):
@@ -21,8 +21,7 @@ class DialogueAgent(RoutedAgent):
 
     async def ask_docker(self, question: str) -> str:
         "Handoff docker relevant question to dedicated agent."
-        req = DockerRequest(question)
-        return await self.send_message(req, AgentId("docker", "default"))
+        return await self.send_message(question, AgentId("docker", "default"))
 
     @message_handler
     async def handle_dialogue(self, message: str, _: MessageContext) -> str:

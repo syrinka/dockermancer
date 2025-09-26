@@ -9,7 +9,7 @@ from loguru import logger
 
 from core.config import DockerInstConfig, config
 from core.share import wraptool
-from core.share.msg import ChatCompletionRequest, DockerRequest
+from core.share.msg import ChatCompletionRequest
 
 
 def get_docker_client(inst_config: DockerInstConfig) -> docker.DockerClient:
@@ -56,9 +56,9 @@ class DockerAccessAgent(RoutedAgent):
     async def get_container_list(self) -> list: ...
 
     @message_handler
-    async def handle_request(self, message: DockerRequest, _: MessageContext) -> str:
+    async def handle_request(self, message: str, _: MessageContext) -> str:
         try:
-            req = ChatCompletionRequest(prompt=message.prompt, tools=self.tools)
+            req = ChatCompletionRequest(prompt=message, tools=self.tools)
             return await self.send_message(req, AgentId("chat", "docker"))
         except APIError:
             return "API Error"
