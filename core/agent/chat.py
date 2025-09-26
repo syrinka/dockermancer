@@ -10,8 +10,8 @@ from autogen_core import (
     message_handler,
 )
 from autogen_core.model_context import (
+    BufferedChatCompletionContext,
     ChatCompletionContext,
-    TokenLimitedChatCompletionContext,
 )
 from autogen_core.models import (
     AssistantMessage,
@@ -23,7 +23,6 @@ from autogen_core.models import (
     UserMessage,
 )
 from autogen_core.tools import FunctionTool
-from autogen_ext.models.ollama import OllamaChatCompletionClient
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from loguru import logger
 
@@ -46,13 +45,11 @@ class ChatCompletionAgent(RoutedAgent):
         match chat_config.provider:
             case "OpenAI":
                 self.client = OpenAIChatCompletionClient(**chat_config.params)
-            case "Ollama":
-                self.client = OllamaChatCompletionClient(**chat_config.params)
             case _:
                 raise NotImplementedError("Not yet support")
-        self.context = TokenLimitedChatCompletionContext(
-            model_client=self.client,
-            token_limit=chat_config.context_token_limit,
+        self.context = BufferedChatCompletionContext(
+            # TODO - Need further investigate
+            buffer_size=chat_config.context_buffer_size,
         )
 
         # Load system prompt

@@ -21,7 +21,7 @@ class DockerInstConfig(BaseModel):
 class ChatClientConfig(BaseModel):
     provider: Literal["OpenAI", "AzureOpenAI", "AzureAI", "Ollama"]
     logging: bool = False
-    context_token_limit: int = 2000
+    context_buffer_size: int = 20
     params: dict[str, Any] = Field(default_factory=dict)
 
 
