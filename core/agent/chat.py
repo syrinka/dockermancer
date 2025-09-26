@@ -9,7 +9,10 @@ from autogen_core import (
     RoutedAgent,
     message_handler,
 )
-from autogen_core.model_context import BufferedChatCompletionContext
+from autogen_core.model_context import (
+    ChatCompletionContext,
+    TokenLimitedChatCompletionContext,
+)
 from autogen_core.models import (
     AssistantMessage,
     ChatCompletionClient,
@@ -20,30 +23,50 @@ from autogen_core.models import (
     UserMessage,
 )
 from autogen_core.tools import FunctionTool
+from autogen_ext.models.ollama import OllamaChatCompletionClient
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from loguru import logger
 
-from core.config import config
+from core.config import config, root
 from core.share.msg import ChatCompletionRequest
 
 
 class ChatCompletionAgent(RoutedAgent):
     agent_key: str
     client: ChatCompletionClient
-    context: BufferedChatCompletionContext
+    context: ChatCompletionContext
     system_prompt: list[SystemMessage]
 
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
         self.agent_key = AgentInstantiationContext.current_agent_id().key
         chat_config = config.chat
+
+        # Init client and context
         match chat_config.provider:
             case "OpenAI":
                 self.client = OpenAIChatCompletionClient(**chat_config.params)
+            case "Ollama":
+                self.client = OllamaChatCompletionClient(**chat_config.params)
             case _:
                 raise NotImplementedError("Not yet support")
-        self.context = BufferedChatCompletionContext(buffer_size=8)
-        self.system_prompt = [SystemMessage(content="</System Prompt End>")]
+        self.context = TokenLimitedChatCompletionContext(
+            model_client=self.client,
+            token_limit=chat_config.context_token_limit,
+        )
+
+        # Load system prompt
+        sp_path = root / "prompts" / f"{self.agent_key}.md"
+        if not sp_path.exists():
+            logger.warning(f"System prompt not found: {self.agent_key}")
+            self.system_prompt = []
+        else:
+            sp = sp_path.read_text(encoding="utf-8")
+            logger.log(
+                "CHAT",
+                f"[{self.agent_key}/SystemMessage] | {sp.replace('\n', '\\n')}",
+            )
+            self.system_prompt = [SystemMessage(content=sp)]
 
     @message_handler
     async def handle_request(
@@ -51,7 +74,7 @@ class ChatCompletionAgent(RoutedAgent):
         message: ChatCompletionRequest,
         ctx: MessageContext,
     ) -> str:
-        user_msg = UserMessage(content=message.prompt, source="user")
+        user_msg = UserMessage(content=message.content, source="user")
         await self.record(user_msg)
 
         while True:

@@ -25,7 +25,7 @@ class DialogueAgent(RoutedAgent):
 
     @message_handler
     async def handle_dialogue(self, message: str, _: MessageContext) -> str:
-        req = ChatCompletionRequest(prompt=message, tools=self.tools)
-        resp = await self.send_message(req, AgentId("chat", "default"))
+        req = ChatCompletionRequest(content=message, tools=self.tools)
+        resp = await self.send_message(req, AgentId("chat", "dialogue"))
 
         return str(resp)

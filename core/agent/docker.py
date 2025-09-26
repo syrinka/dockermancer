@@ -58,7 +58,7 @@ class DockerAccessAgent(RoutedAgent):
     @message_handler
     async def handle_request(self, message: str, _: MessageContext) -> str:
         try:
-            req = ChatCompletionRequest(prompt=message, tools=self.tools)
+            req = ChatCompletionRequest(content=message, tools=self.tools)
             return await self.send_message(req, AgentId("chat", "docker"))
         except APIError:
             return "API Error"
