@@ -8,13 +8,16 @@ tasks:
   run:
     aliases: [default]
     cmd: python -u "./entry.py"
+    interactive: true
 
   trace:
     cmd: python -u "./entry.py"
+    interactive: true
     env:
       LOGURU_LEVEL: TRACE
 
   debug:
     cmd: python -u "./entry.py"
+    interactive: true
     env:
       LOGURU_LEVEL: DEBUG
